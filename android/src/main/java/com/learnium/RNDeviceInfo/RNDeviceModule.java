@@ -14,6 +14,7 @@ import android.provider.Settings.Secure;
 import android.webkit.WebSettings;
 import android.telephony.TelephonyManager;
 import android.text.format.Formatter;
+import android.util.DisplayMetrics;
 
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
@@ -85,8 +86,26 @@ public class RNDeviceModule extends ReactContextBaseJavaModule {
   }
 
   private Boolean isTablet() {
+    DisplayMetrics dm = getReactApplicationContext().getResources().getDisplayMetrics();
+
+    float xDpi = dm.xdpi;
+    float yDpi = dm.ydpi;
+    float width = dm.widthPixels;
+    float height = dm.heightPixels;
+
+    double diagonal = Math.sqrt(Math.pow(width/xDpi, 2) + Math.pow(height/yDpi, 2));
+
+    System.out.println("DIAGONAL ==== " + diagonal);
+
     int layout = getReactApplicationContext().getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
-    return layout == Configuration.SCREENLAYOUT_SIZE_LARGE || layout == Configuration.SCREENLAYOUT_SIZE_XLARGE;
+
+    boolean isTablet = layout == Configuration.SCREENLAYOUT_SIZE_LARGE || layout == Configuration.SCREENLAYOUT_SIZE_XLARGE;
+
+    if(isTablet && diagonal < 9) {
+      isTablet = false;
+    }
+
+    return (Boolean)isTablet;
   }
 
   @ReactMethod
